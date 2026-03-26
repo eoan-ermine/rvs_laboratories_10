@@ -1,0 +1,699 @@
+% !TeX program = lualatex
+% !TeX encoding = utf-8
+% !TeX spellcheck = ru_RU
+%==========================================================
+% v. 3.2
+% Отчет может быть откомпилирован в LuaLaTeX.
+% Например в дистирибутивах MikTeX или TeXlive
+% (требуется установка пакета minted), а также
+% в он-лайн версии https://www.overleaf.com/
+% (включите компилятор LuaLaTeX).
+%
+% Для создания документа может потребоваться несколько
+% запусков его компиляции. Например, обновление содержания
+% требует двойной компиляции.
+%
+% Обратите внимание на команду команда сжатия/растяжения
+% текста \textls из пакета microtype (см. пример).
+%==========================================================
+\documentclass[14pt]{extarticle}
+\usepackage[main=russian,english]{babel} % языковая поддержка
+\usepackage{amsmath, amssymb, unicode-math}% пакеты для набора математики
+\usepackage[explicit]{titlesec} % настройка заголовков
+\usepackage{titletoc} % настройка содержания
+\usepackage{enumitem} % настройка нумерованных списков
+\setlist{nosep, wide} % убрать вертикальные отступы, текст всю ширину
+\usepackage{cite} % ссылки на литературу [1-10]
+\usepackage[tracking=true]{microtype} % микротипографика
+\microtypecontext{kerning=russian} % настройка микротипографики
+\usepackage{geometry} % настройка геометрии страницы
+\usepackage{graphicx} % поддержка графики
+\usepackage{indentfirst} % красная строка в первом абзаце
+\usepackage{float}
+\usepackage{tabularx}
+%========================================
+\babelfont{rm}[Scale=0.976]{Times New Roman} % шрифт с засечками для кириллицы
+% если нужен шрифт без засечек в документе, то подключаем его
+%\babelfont{sf}[Scale=MatchLowercase]{Arial} % шрифт без засечек
+% Scale=MatchLowercase - масштабировать выбранный шрифт в соответствии с
+% текущим римским шрифтом по умолчанию до высоты строчных
+\babelfont{tt}[Scale=0.976]{Courier New} % моноширинный шрифт
+%========================================
+\usepackage{xcolor} % поддержка цвета
+\usepackage{hyperref} % гипертекстовые ссылоки в документе
+\usepackage{verbatim} % используем из этого пакета окружение comment для многострочных комментариев
+\usepackage{tabularray} % для создания таблиц
+\usepackage{tikz} % пакет для рисования
+\usetikzlibrary{calc, decorations.pathmorphing, shapes, arrows, chains, positioning, shapes.misc, fit} % библиотеки для пакета tikz
+
+\tikzset{
+	line/.style={draw, -latex'},
+	every join/.style={line},
+	u/.style={anchor=south},
+	r/.style={anchor=west},
+	fxd/.style={text width = 6em},
+	it/.style={font={\small\itshape}},
+	bf/.style={font={\small\bfseries}}
+}
+\tikzstyle{base} =
+	[
+		draw,
+		on chain,
+		on grid,
+		align=center,
+		minimum height=4ex,
+		minimum width = 10ex,
+		node distance = 6mm and 60mm,
+		text badly centered
+	]
+\tikzstyle{coord} =
+	[
+		coordinate,
+		on chain,
+		on grid
+	]
+\tikzstyle{cloud} =
+	[
+		base,
+		ellipse,
+		node distance = 3cm,
+		minimum height = 2em
+	]
+\tikzstyle{decision} =
+	[
+		base,
+		diamond,
+		aspect=2,
+		node distance = 2cm,
+		inner sep = 0pt
+	]
+\tikzstyle{block} =
+	[
+		rectangle,
+		base,
+		rounded corners,
+		minimum height = 2em
+	]
+\tikzstyle{start_finish} =
+	[
+		rectangle,
+		base,
+		rounded corners=5mm,
+		minimum height = 2em
+	]
+\tikzstyle{print_block} =
+	[
+		base,
+		tape,
+		tape bend top=none,
+	]
+\tikzstyle{io} =
+	[
+		base,
+		trapezium,
+		trapezium left angle = 70,
+		trapezium right angle = 110,
+	]
+\makeatletter
+\pgfkeys{/pgf/.cd,
+	subrtshape w/.initial=2mm,
+	cycleshape w/.initial=2mm
+}
+\pgfdeclareshape{subrtshape}{
+	\inheritsavedanchors[from=rectangle]
+	\inheritanchorborder[from=rectangle]
+	\inheritanchor[from=rectangle]{north}
+	\inheritanchor[from=rectangle]{center}
+	\inheritanchor[from=rectangle]{west}
+	\inheritanchor[from=rectangle]{east}
+	\inheritanchor[from=rectangle]{mid}
+	\inheritanchor[from=rectangle]{base}
+	\inheritanchor[from=rectangle]{south}
+	\backgroundpath{
+		\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		\pgfmathsetlength\pgfutil@tempdima{\pgfkeysvalueof{/pgf/subrtshape w}}
+		\def\ppd@offset{\pgfpoint{\pgfutil@tempdima}{0ex}}
+		\def\ppd@offsetm{\pgfpoint{-\pgfutil@tempdima}{0ex}}
+		\pgfpathmoveto{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+		\pgfpathlineto{\pgfqpoint{\pgf@xb}{\pgf@ya}}
+		\pgfpathlineto{\pgfqpoint{\pgf@xb}{\pgf@yb}}
+		\pgfpathlineto{\pgfqpoint{\pgf@xa}{\pgf@yb}}
+		\pgfpathclose
+		\pgfpathmoveto{\pgfpointadd{\pgfpoint{\pgf@xa}{\pgf@yb}}{\ppd@offsetm}}
+		\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xa}{\pgf@ya}}{\ppd@offsetm}}
+		\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xb}{\pgf@ya}}{\ppd@offset}}
+		\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xb}{\pgf@yb}}{\ppd@offset}}
+		\pgfpathclose
+	}
+}
+\pgfdeclareshape{cyclebegshape}{
+	\inheritsavedanchors[from=rectangle]
+	\inheritanchorborder[from=rectangle]
+	\inheritanchor[from=rectangle]{north}
+	\inheritanchor[from=rectangle]{center}
+	\inheritanchor[from=rectangle]{west}
+	\inheritanchor[from=rectangle]{east}
+	\inheritanchor[from=rectangle]{mid}
+	\inheritanchor[from=rectangle]{base}
+	\inheritanchor[from=rectangle]{south}
+	\backgroundpath{
+		\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		\pgfmathsetlength\pgfutil@tempdima{\pgfkeysvalueof{/pgf/cycleshape w}}
+		\pgfpathmoveto{\pgfqpoint{\pgf@xa}{\pgf@ya}}
+\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xa}{\pgf@yb}}{\pgfpoint{0ex}{-\pgfutil@tempdima}}}
+\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xa}{\pgf@yb}}{\pgfpoint{\pgfutil@tempdima}{0ex}}}
+\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xb}{\pgf@yb}}{\pgfpoint{-\pgfutil@tempdima}{0ex}}}
+\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xb}{\pgf@yb}}{\pgfpoint{0ex}{-\pgfutil@tempdima}}}
+\pgfpathlineto{\pgfqpoint{\pgf@xb}{\pgf@ya}}
+		\pgfpathclose
+	}
+}
+\pgfdeclareshape{cycleendshape}{
+	\inheritsavedanchors[from=rectangle]
+	\inheritanchorborder[from=rectangle]
+	\inheritanchor[from=rectangle]{north}
+	\inheritanchor[from=rectangle]{center}
+	\inheritanchor[from=rectangle]{west}
+	\inheritanchor[from=rectangle]{east}
+	\inheritanchor[from=rectangle]{mid}
+	\inheritanchor[from=rectangle]{base}
+	\inheritanchor[from=rectangle]{south}
+	\backgroundpath{
+		\southwest \pgf@xa=\pgf@x \pgf@ya=\pgf@y
+		\northeast \pgf@xb=\pgf@x \pgf@yb=\pgf@y
+		\pgfmathsetlength\pgfutil@tempdima{\pgfkeysvalueof{/pgf/cycleshape w}}
+		\pgfpathmoveto{\pgfqpoint{\pgf@xb}{\pgf@yb}}
+\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xb}{\pgf@ya}}{\pgfpoint{0ex}{\pgfutil@tempdima}}}
+\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xb}{\pgf@ya}}{\pgfpoint{-\pgfutil@tempdima}{0ex}}}
+\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xa}{\pgf@ya}}{\pgfpoint{\pgfutil@tempdima}{0ex}}}
+\pgfpathlineto{\pgfpointadd{\pgfpoint{\pgf@xa}{\pgf@ya}}{\pgfpoint{0ex}{\pgfutil@tempdima}}}
+\pgfpathlineto{\pgfqpoint{\pgf@xa}{\pgf@yb}}
+		\pgfpathclose
+	}
+}
+\makeatother
+\tikzstyle{subroutine} =
+	[
+		base,
+		subrtshape,
+	]
+\tikzstyle{cyclebegin} =
+	[
+		base,
+		cyclebegshape,
+	]
+\tikzstyle{cycleend} =
+	[
+		base,
+		cycleendshape,
+	]
+\tikzstyle{connector} =
+	[
+		base,
+		circle,
+	]
+
+\usepackage[open, numbered]{bookmark} % закладки в pdf с нумерацией
+\usepackage{fancyhdr} % настройка колонтитулов страницы
+\usepackage{setspace} % определение интервала в тексте
+\usepackage[singlelinecheck=false]{caption} % настройка заголовков
+\usepackage[newfloat]{minted} % листинги
+\usepackage{csquotes} % расширенная языковая поддержка
+%========================================
+\renewcommand{\UrlFont}{\ttfamily\small} % определене размера шрифта small для ссылок url
+%========================================
+\setlength{\parindent}{1.25cm} % Отступ красной строки
+% Для отступов внутри заголовков глав, разделов и др. так как
+% в них отступ может быть равен "0"
+\newlength{\normalparindent} 
+\setlength{\normalparindent}{\parindent}
+%
+\geometry{ % настройка страницы, шрифтов и отступов
+	a4paper,
+	left=25mm,
+	right=10mm,
+	top=20mm,
+	bottom=20mm,
+	headsep=5mm,
+%	showframe % показать поля страниц
+}
+%========================================
+% подавление висячих строк в тексте
+\clubpenalty=10000
+\widowpenalty=10000
+%========================================
+%========================================
+% настройка колонтитулов страницы
+\pagestyle{fancy}
+\fancyhf{} % очистка текущих значений
+\setlength{\headheight}{0pt}
+\fancyfoot[C]{\thepage} % номер страницы вверху по центру
+\renewcommand{\headrule}{} % отключить линию в вверхнем колонтитуле
+\fancypagestyle{plain}{ % номер страницы в центре для 1-й страницы chapter
+	\fancyfoot[C]{\thepage}
+}
+%========================================
+% настройка оформления списков
+\setlist{nosep, wide} % убрать вертикальные отступы, текст всю ширину
+%==========================================================
+% настройка заголовков у рисунков, таблиц и листингов
+\DeclareCaptionLabelSeparator{defffis}{~--~}
+\captionsetup[table]{aboveskip=6pt plus 3pt minus 3pt, belowskip=6pt plus 3pt minus 3pt, margin={\normalparindent, 0pt}, indention=-\normalparindent, labelsep=defffis, font=normalsize}
+\captionsetup[figure]{aboveskip=6pt plus 3pt minus 3pt, belowskip=6pt plus 3pt minus 3pt, justification=centering, labelsep=defffis, font=normalsize}
+\captionsetup[listing]{aboveskip=-14pt plus 3pt minus 3pt, belowskip=6pt plus 3pt minus 3pt, margin={\normalparindent, 0pt}, indention=-\normalparindent, labelsep=defffis, font=normalsize}
+% настройка заголовков для многостраничных таблиц longtblr пакет tabularray
+\DefTblrTemplate{firsthead}{default}{\addtocounter{table}{-1}\captionof{table}[\InsertTblrText{entry}]{\InsertTblrText{caption}}}
+\DefTblrTemplate{middlehead,lasthead}{default}{\addtocounter{table}{-1}\captionof{table}[]{\InsertTblrText{caption}~(Продолжение)}}
+\DefTblrTemplate{contfoot-text}{default}{\centerline{Продолжение на следующей странице}}
+\SetTblrTemplate{caption-lot}{empty}
+%==========================================================
+% настройка визуализации листингов
+% https://pygments.org/demo/#try - тут можно попробовать разные стили
+\setminted{xleftmargin=0.5cm, linenos, numbersep=5pt, breaklines, breakanywhere, frame=single, framesep=1ex,  fontsize=\small} % настройки оформления листингов
+% создание окружения code для оформления
+% многостраничных листингов
+\newenvironment{code}{\captionsetup{type=listing, belowskip=-14pt plus 3pt minus 0pt}}{}
+\SetupFloatingEnvironment{listing}{name=сode}
+\AtBeginEnvironment{code}{\vspace{28pt plus 3pt minus 0pt}} % добавляем отступ перед окружением code
+% команда удалемния пробела после окружения
+\newcommand{\nospacebetweenenvs}{%
+	\vspace{-\glueexpr(\topsep+\partopsep)*2}%
+}
+% настройка отсупов после окружения listing
+\AtEndEnvironment{listing}{\nospacebetweenenvs\vspace{12pt plus 3pt minus 0pt}}
+%==========================================================
+% определяем стандартные названия
+\addto\captionsrussian{\def\figurename{Рис.}} % подпись для рисунка
+\addto\captionsrussian{\def\tablename{Табл.}} % подпись для таблицы
+\addto\captionsrussian{\def\listingname{Лист.}} % подпись для листинга
+%==========================================================
+\makeatletter
+\newcommand{\hrf}[1]{\hbox to #1{\hrulefill}} % команда подчеркивания
+%==========================================================
+% настройка заголовков и их отоборажения в содержании
+\renewcommand{\@pnumwidth}{1.25em} % настройка отступа под номер страницы в содержании
+% настройка оформления в тексте и содержании для section
+\titleformat{\section}[block]
+{\hspace*{\normalparindent}\normalfont\bfseries}
+{\thesection}
+{1ex}
+{#1}
+[]
+%
+\titlespacing*{\section}{0pt}{14pt plus 2pt minus 2pt}{14pt plus 2pt minus 2pt}
+%
+\titlecontents{section}
+[0pt]
+{}
+%{\makebox[1.25em][l]{\thecontentslabel}} % второй вариант оформления
+{\contentspush{\makebox[1.25em][l]{\thecontentslabel}}} % второй вариант оформления: добавляет отступ под номер для всех строк заголовка в содержании (смотреть на многострочных заголовках)
+{}
+{\nolinebreak\titlerule*[1pc]{.}\contentspage} % \nolinebreak добавлен для предотвращения нежелательных разрывов строк между заголовками и номерами страниц
+[]
+%==========================================================
+% создание нового вида секции в документе
+\newcounter{sectionc} % создание счетчика для sectionc
+\titleclass{\sectionc}{straight}[\part] % создание новой секции sectionc
+% секция sectionc является подчиненной \part
+% для класса article ToC level(part)=0, тогда ToC level(sectionc)=1
+% т.е. ToC level(section)=ToC level(sectionc)
+% straight - означает, что секция может быть использовна
+% в любом месте страницы
+% настройка оформления в тексте и содержании для sectionс
+\titleformat{\sectionc}[block]
+{\normalfont\bfseries}
+{}
+{0pt}
+{\filcenter #1}
+[]
+%
+\titlespacing*{\sectionc}{0pt}{14pt plus 2pt minus 2pt}{14pt plus 2pt minus 2pt}
+%
+\titlecontents{sectionc}
+[0em]
+{\normalfont}
+{}
+{}
+{\nolinebreak\titlerule*[1pc]{.}\contentspage}
+[]
+%==========================================================
+% для корректного вывода закладок в PDF при просмотре
+\def\toclevel@sectionc{1} % настройка уровня нового вида секций
+% команды для вкл/откл номера в закладках
+\newcommand{\numbersections}{\renewcommand{\Hy@numberline}[1]{##1~}}
+\newcommand{\nonumbersections}{\renewcommand{\Hy@numberline}[1]{}}
+% включаем нумерацию для section переопределяя команду
+\let\oldsection\section
+\renewcommand{\section}{\numbersections\oldsection}
+% отключаем нумерацию для sectionc переопределяя команду
+\let\oldsectionc\sectionc
+\renewcommand{\sectionc}{\nonumbersections\oldsectionc}
+%==========================================================
+% содержание по центру
+\renewcommand\tableofcontents{
+	\pdfbookmark[sectionc]{\contentsname}{toc} % Добавляем Содержание в закладку PDF ToC
+	\sectionc*{\contentsname
+		\@mkboth{\contentsname}{\contentsname}}
+	\@starttoc{toc}
+}
+%==========================================================
+% настройка списка литературы
+\renewenvironment{thebibliography}[1]{
+	\sectionc{Список использованных источников}
+	\@mkboth{\MakeUppercase\refname}{\MakeUppercase\refname}%
+	\begin{enumerate}[label=\arabic*., fullwidth, nosep, itemindent=\parindent, 
+		listparindent=\parindent]
+		\@openbib@code
+		\sloppy
+		\clubpenalty4000
+		\@clubpenalty \clubpenalty
+		\widowpenalty4000
+		\sfcode`\.\@m}
+	{\def\@noitemerr
+		{\@latex@warning{Empty `thebibliography' environment}}%
+\end{enumerate}}
+
+\newcounter{oldtocdepth}
+
+\newcommand{\hidefromtoc}{%
+  \setcounter{oldtocdepth}{\value{tocdepth}}%
+  \addtocontents{toc}{\protect\setcounter{tocdepth}{-10}}%
+}
+
+\newcommand{\unhidefromtoc}{%
+  \addtocontents{toc}{\protect\setcounter{tocdepth}{\value{oldtocdepth}}}%
+}
+
+%==========================================================
+\makeatother
+\graphicspath{{pic/}} % папка с рисунками
+\begin{document}
+\setstretch{0.976}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                  %
+%          Титульный лист          %
+%                                  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Выравнивание контента по центру можно делать разными способами
+% \centerline{...} - выравнивает строку по центру (для одной строки!)
+% \begin{center} - окружение для выравнивания по центру (добавлят вертикальный отступы до и после)
+%  ...
+% \end{center}
+% {\par\centering - окружение для выравнивания по центру без добавления вертикальных отступов
+% ...
+% \par}
+{\par\centering % окружение для выравнивания по центру
+
+\includegraphics[width=0.12\linewidth]{images/logo.pdf} % вставляем логотип
+
+МИНИСТЕРСТВО ЦИФРОВОГО РАЗВИТИЯ, СВЯЗИ И\\МАССОВЫХ КОММУНИКАЦИЙ РОССИЙСКОЙ ФЕДЕРАЦИИ\\[5mm] % новый абзац + отступ 5мм
+% \textbf - делает шрифт жирным
+
+Ордена Трудового Красного Знамени федеральное государственное\\ бюджетное образовательное учреждение высшего образования\\ «\textbf{Московский технический университет связи и информатики}»\\(\textbf{МТУСИ})\\[5mm] 
+	
+Кафедра «Системное программирование»
+\par}
+
+\begin{tikzpicture}[overlay, remember picture] % рисуем рамку на титульнике
+	\draw[line width=0.5mm] 
+	($(current page.north west) + (20mm, -10mm)$)
+	rectangle
+	($(current page.south east) + (-10mm, 10mm)$);
+\end{tikzpicture}
+
+\vfill\vfill % двойно бесконечный вертикальный промежуток (работает как пружина)
+
+{\par\centering
+\textbf{ОТЧЕТ}\\ по лабораторной работе №10\\
+Вариант №26\\[5mm]
+
+по дисциплине «\textbf{Параллельные и распределенные вычисления}»
+\par}
+
+\vfill % бесконечный вертикальный промежуток
+
+\hfill % бесконечный горизонтальный промежуток (работает как пружина)
+\begin{minipage}{0.45\textwidth} % министраница шириной 0.45 от ширины текста
+	Выполнил:\\[2mm]
+	студент гр.\,БФИ2202\\[2mm]
+	\hrf{2.7cm}\,Сидорук Д.\,В.\\[2mm]
+	«\,\hrf{1cm}\,»\,\hrf{2.5cm}\,\the\year{}\,г.\\[5mm]
+	
+	Проверил:\\[2mm]
+	старший преподаватель\\[2mm]
+	\hrf{2.7cm}\,Клешнин Н.\,Г.\\[2mm]
+	ассистент\\[2mm]
+	\hrf{2.7cm}\,Соловьев А.\,С.\\[2mm]
+	«\,\hrf{1cm}\,»\,\hrf{2.5cm}\,\the\year{}\,г.
+\end{minipage}%
+
+\vfill
+
+\centerline{Москва, \the\year{}\,г.} % строка по центру
+\thispagestyle{empty} % стиль страницы отсутствует (без номера страницы)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                  %
+%            Содержание            %
+%                                  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage % новая страницы
+\tableofcontents % содержание
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                                  %
+%         Тело документа           %
+%                                  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage % новая страница
+
+\section{Введение}
+
+В данной лабораторной работе рассматривается реализация блочного алгоритма свёртки изображения на графическом процессоре с использованием технологии CUDA. Актуальность темы обусловлена широким применением операции свёртки в задачах цифровой обработки изображений, компьютерного зрения, распознавания образов и подготовки данных для последующего анализа. Свёртка используется для выделения контуров, сглаживания изображений, повышения резкости и выполнения других преобразований, необходимых в современных вычислительных системах.
+
+Целью лабораторной работы является изучение принципов организации параллельных вычислений при выполнении двумерной свёртки изображения с учётом цветовых каналов, а также освоение методов оптимизации доступа к памяти GPU. В работе требуется реализовать алгоритм свёртки с маской размером 5×5, используя разделяемую память для сокращения числа обращений к глобальной памяти и константную память для хранения маски свёртки. Такой подход позволяет повысить эффективность выполнения ядра и лучше понять особенности архитектуры графических ускорителей.
+
+Особенностью рассматриваемой задачи является обработка перемежёванного изображения в формате RGB, где каждый пиксель представлен тремя цветовыми компонентами. Для каждого выходного пикселя и каждого канала необходимо вычислить сумму произведений значений соседних пикселей на соответствующие коэффициенты маски, с последующим ограничением результата в диапазоне от 0 до 1. Кроме того, в реализации необходимо корректно учитывать граничные условия, возникающие при обработке пикселей, расположенных у краёв изображения.
+
+Выполнение лабораторной работы направлено на закрепление навыков разработки CUDA-программ, изучение особенностей использования глобальной, разделяемой и константной памяти, а также анализ влияния структуры алгоритма на производительность вычислений. Полученные результаты позволяют оценить преимущества применения GPU для решения задач свёрточной обработки изображений.
+
+\section{Цель работы}
+
+Получение навыков вычисления свертки изображения.
+
+\section{Задание}
+
+Реализовать программу, реализующую блочный алгоритм свертки изображения, испольщующий как разделяемую, так и константную память, с помощью CUDA.
+
+\section{Ход работы}
+
+В листинге ниже приведено содержание файла rvs\_laboratories\_9/rvs\_laboratories\_9.cu, который содержит код, выполняющий свертку изображения на GPU с помощью CUDA (лист. \ref{lst:main}).
+
+\begin{code}    
+\caption{Содержание rvs\_laboratories\_9/rvs\_laboratories\_9.cu\label{lst:main}}
+\begin{minted}{c++}
+#include "wb.h"
+
+#define wbCheck(stmt)                                                     \
+  do {                                                                    \
+    cudaError_t err = stmt;                                               \
+    if (err != cudaSuccess) {                                             \
+      wbLog(ERROR, "Failed to run stmt ", #stmt);                         \
+      return -1;                                                          \
+    }                                                                     \
+  } while (0)
+
+#define Mask_width 5
+#define Mask_radius Mask_width / 2
+#define TILE_WIDTH 16
+#define w (TILE_WIDTH + Mask_width - 1)
+#define clamp(x) (min(max((x), 0.0), 1.0))
+
+__constant__ float constMask[Mask_width * Mask_width];
+
+__global__ void convolution(const float *inputImage, const float *mask,
+                            float *outputImage, int channels,
+                            int width, int height) {
+  __shared__ float tile[w][w][3];
+
+  int tx = threadIdx.x;
+  int ty = threadIdx.y;
+
+  int row_o = blockIdx.y * TILE_WIDTH + ty;
+  int col_o = blockIdx.x * TILE_WIDTH + tx;
+
+  int row_i = row_o - Mask_radius;
+  int col_i = col_o - Mask_radius;
+
+  for (int c = 0; c < channels; ++c) {
+    if (row_i >= 0 && row_i < height && col_i >= 0 && col_i < width) {
+      tile[ty][tx][c] = inputImage[(row_i * width + col_i) * channels + c];
+    } else {
+      tile[ty][tx][c] = 0.0f;
+    }
+  }
+
+  __syncthreads();
+
+  if (tx < TILE_WIDTH && ty < TILE_WIDTH &&
+      row_o < height && col_o < width) {
+    for (int c = 0; c < channels; ++c) {
+      float accum = 0.0f;
+      for (int i = 0; i < Mask_width; ++i) {
+        for (int j = 0; j < Mask_width; ++j) {
+          accum += tile[ty + i][tx + j][c] * constMask[i * Mask_width + j];
+        }
+      }
+      outputImage[(row_o * width + col_o) * channels + c] = clamp(accum);
+    }
+  }
+}
+
+int main(int argc, char *argv[]) {
+  wbArg_t arg;
+  int maskRows;
+  int maskColumns;
+  int imageChannels;
+  int imageWidth;
+  int imageHeight;
+  char *inputImageFile;
+  char *inputMaskFile;
+  wbImage_t inputImage;
+  wbImage_t outputImage;
+  float *hostInputImageData;
+  float *hostOutputImageData;
+  float *hostMaskData;
+  float *deviceInputImageData;
+  float *deviceOutputImageData;
+  float *deviceMaskData;
+
+  arg = wbArg_read(argc, argv);
+
+  inputImageFile = wbArg_getInputFile(arg, 0);
+  inputMaskFile  = wbArg_getInputFile(arg, 1);
+
+  inputImage   = wbImport(inputImageFile);
+  hostMaskData = (float *)wbImport(inputMaskFile, &maskRows, &maskColumns);
+
+  assert(maskRows == 5);
+  assert(maskColumns == 5);
+
+  imageWidth    = wbImage_getWidth(inputImage);
+  imageHeight   = wbImage_getHeight(inputImage);
+  imageChannels = wbImage_getChannels(inputImage);
+
+  outputImage = wbImage_new(imageWidth, imageHeight, imageChannels);
+
+  hostInputImageData  = wbImage_getData(inputImage);
+  hostOutputImageData = wbImage_getData(outputImage);
+
+  wbTime_start(GPU, "Doing GPU Computation (memory + compute)");
+
+  wbTime_start(GPU, "Doing GPU memory allocation");
+  wbCheck(cudaMalloc((void **)&deviceInputImageData,
+                     imageWidth * imageHeight * imageChannels * sizeof(float)));
+  wbCheck(cudaMalloc((void **)&deviceOutputImageData,
+                     imageWidth * imageHeight * imageChannels * sizeof(float)));
+  wbCheck(cudaMalloc((void **)&deviceMaskData,
+                     maskRows * maskColumns * sizeof(float)));
+  wbTime_stop(GPU, "Doing GPU memory allocation");
+
+  wbTime_start(Copy, "Copying data to the GPU");
+  wbCheck(cudaMemcpy(deviceInputImageData, hostInputImageData,
+                     imageWidth * imageHeight * imageChannels * sizeof(float),
+                     cudaMemcpyHostToDevice));
+  wbCheck(cudaMemcpy(deviceMaskData, hostMaskData,
+                     maskRows * maskColumns * sizeof(float),
+                     cudaMemcpyHostToDevice));
+  wbCheck(cudaMemcpyToSymbol(constMask, hostMaskData,
+                             maskRows * maskColumns * sizeof(float)));
+  wbTime_stop(Copy, "Copying data to the GPU");
+
+  wbTime_start(Compute, "Doing the computation on the GPU");
+  dim3 dimBlock(w, w, 1);
+  dim3 dimGrid((imageWidth + TILE_WIDTH - 1) / TILE_WIDTH,
+               (imageHeight + TILE_WIDTH - 1) / TILE_WIDTH, 1);
+  convolution<<<dimGrid, dimBlock>>>(deviceInputImageData, deviceMaskData,
+                                     deviceOutputImageData, imageChannels,
+                                     imageWidth, imageHeight);
+  wbCheck(cudaDeviceSynchronize());
+  wbTime_stop(Compute, "Doing the computation on the GPU");
+
+  wbTime_start(Copy, "Copying data from the GPU");
+  wbCheck(cudaMemcpy(hostOutputImageData, deviceOutputImageData,
+                     imageWidth * imageHeight * imageChannels * sizeof(float),
+                     cudaMemcpyDeviceToHost));
+  wbTime_stop(Copy, "Copying data from the GPU");
+
+  wbTime_stop(GPU, "Doing GPU Computation (memory + compute)");
+
+  wbSolution(arg, outputImage);
+
+  wbCheck(cudaFree(deviceInputImageData));
+  wbCheck(cudaFree(deviceOutputImageData));
+  wbCheck(cudaFree(deviceMaskData));
+
+  free(hostMaskData);
+  wbImage_delete(outputImage);
+  wbImage_delete(inputImage);
+
+  return 0;
+}
+\end{minted}
+\end{code}
+
+\pagebreak
+
+В листинге ниже приведено содержание файла CMakeLists.txt, определяющего правила сборки программы (лист. \ref{lst:cmake}).
+
+\begin{code}    
+\caption{Содержание CMakeLists.txt\label{lst:cmake}}
+\begin{minted}{cmake}
+cmake_minimum_required(VERSION 3.27)
+project(rvs_laboratories_9 LANGUAGES CXX CUDA)
+
+set(LIBGPUTK_PATH "/usr/local/libgputk" CACHE STRING "Path to libgputk")
+
+add_executable(dataset_generator dataset_generator/dataset_generator.cpp)
+
+target_include_directories(dataset_generator PRIVATE ${LIBGPUTK_PATH}/include)
+target_link_directories(dataset_generator PRIVATE ${LIBGPUTK_PATH}/lib/)
+target_link_libraries(dataset_generator gputk)
+
+add_executable(rvs_laboratories_9 rvs_laboratories_9/rvs_laboratories_9.cu)
+\end{minted}
+\end{code}
+
+Сгенерируем тестовые входные данные и проверим, что они действительно были сгенерированы (рис. \ref{img:input_generation}).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/input_generation.png}
+    \caption{Генерация тестовых входных данных\label{img:input_generation}}
+\end{figure}
+
+На рисунке ниже приведен результат сборки и выполнения программы (лист. \ref{img:test})
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/test.png}
+    \caption{Компиляция и выполнение программы\label{img:test}}
+\end{figure}
+
+Как можно видеть, вычисление свертки было выполнено успешно.
+
+На рисунке ниже приведено изображение, созданное в результате выполнения программы.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/result.png}
+    \caption{Выходное изображение\label{img:result}}
+\end{figure}
+
+Как видно, оно совпадает с эталонным изображением.
+
+\sectionc{Заключение}
+
+Таким образом, в ходе выполнения данной лабораторной работы были успешно получены навыки вычисления свертки изображения. На практике была реализована программа, реализующая блочный алгоритм свертки изображения, испольщующий как разделяемую, так и константную память, с помощью CUDA.
+
+\end{document}
